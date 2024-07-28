@@ -16,7 +16,9 @@ export const WalletConnect = () => {
 
     return (
         <div className="flex flex-col justify-center items-center">
-            <button className='my-10 bg-blue-700 rounded-full shadow-md w-32 h-10 hover:bg-blue-800 transition duration-300' onClick={connect}>
+            <button
+                className='my-10 bg-blue-700 rounded-full shadow-md w-32 h-10 hover:bg-blue-800 transition duration-300'
+                onClick={connect}>
                 Connect
             </button>
             {connected && (

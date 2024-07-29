@@ -1,4 +1,4 @@
-import {WalletConnect} from "../components/wallet-connect.jsx";
+import {WalletConnect} from "../components/wallet-connect/wallet-connect.jsx";
 import {useEffect, useState} from "react";
 import Web3 from "web3";
 import {Abi} from "../abi/abi.js";

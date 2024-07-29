@@ -40,7 +40,8 @@ export const Messenger = () => {
                 .send({ from: accounts[0] });
             setMessageValue("");
             console.log("Message Sent", messageValue);
-            getMessagesCount(); // Update message count after sending a new message
+            await getMessages(); // Update messages after sending a new message
+            await getMessagesCount(); // Update message count after sending a new message
         } catch (error) {
             console.error("Error sending message", error);
         } finally {
@@ -57,7 +58,7 @@ export const Messenger = () => {
                 // Convert BigInt timestamp to a Number for safe operations
                 const timestamp = Number(msg.timestamp);
                 return (
-                    <div key={index}>
+                    <div key={index} className="bg-gray-800 p-2 rounded-md shadow-md mb-2">
                         <p>Message: {msg.message}</p>
                         <p>Timestamp: {new Date(timestamp * 1000).toLocaleString()}</p>
                     </div>
@@ -75,7 +76,8 @@ export const Messenger = () => {
         try {
             await contract.methods.deleteMessage(index).send({ from: accounts[0] });
             console.log("Message Deleted");
-            getMessagesCount(); // Update message count after deleting a message
+            await getMessages(); // Update messages after deleting a message
+            await getMessagesCount(); // Update message count after deleting a message
         } catch (error) {
             console.error("Error deleting message", error);
         } finally {
@@ -88,7 +90,8 @@ export const Messenger = () => {
         try {
             const count = await contract.methods.getMessagesCount(accounts[0]).call();
             console.log(`Total messages: ${count}`);
-            setMessageCount(count);
+            setMessageCount(Number(count));
+            console.log(messageCount)
         } catch (error) {
             console.error("Error getting message count", error);
         } finally {
@@ -139,7 +142,7 @@ export const Messenger = () => {
                 </button>
             </div>
             <div className='mt-4'>
-                {messages}
+                {messages.length > 0 ? messages : <p>No messages found.</p>}
             </div>
             <div className='mt-4'>
                 <p>Total Messages: {messageCount}</p>

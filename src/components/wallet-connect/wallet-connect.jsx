@@ -1,6 +1,6 @@
 import { useSDK } from "@metamask/sdk-react";
 import React, { useState } from "react";
-import MetaMaskLogo from "./metaMaskLogo.jsx";
+import MetaMaskLogo from "../metaMask-logo/metaMaskLogo.jsx";
 
 export const WalletConnect = () => {
     const [account, setAccount] = useState();

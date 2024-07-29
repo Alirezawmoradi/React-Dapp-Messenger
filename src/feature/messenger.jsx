@@ -102,7 +102,7 @@ export const Messenger = () => {
             <div className='p-4 border-t border-gray-700'>
                 <div className='flex items-center gap-2'>
                     <input
-                        className='bg-gray-700 text-white px-4 py-2 rounded-lg shadow-inner flex-1'
+                        className='bg-gray-700 text-white px-4 py-2 rounded-lg shadow-inner flex-1 outline-none'
                         type='text'
                         value={messageValue}
                         onChange={(e) => setMessageValue(e.target.value)}

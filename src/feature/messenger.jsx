@@ -2,6 +2,8 @@ import {WalletConnect} from "../components/wallet-connect.jsx";
 import {useEffect, useState} from "react";
 import Web3 from "web3";
 import {Abi} from "../abi/abi.js";
+import {LiaHistorySolid} from "react-icons/lia";
+import {GrSend} from "react-icons/gr";
 
 export const Messenger = () => {
     const [web3, setWeb3] = useState(null);
@@ -92,10 +94,13 @@ export const Messenger = () => {
                 <WalletConnect/>
             </div>
             <div className='flex-1 overflow-auto p-4'>
-                {messages.length > 0 ? messages : <p className="text-center text-gray-500">No messages found.</p>}
+                {messages.length > 0 ? messages : <p className="text-center text-gray-500">No messages found...</p>}
+            </div>
+            <div className='gap-2 mb-2 ml-5 text-left text-sm text-gray-500'>
+                <p className={`${!messageCount ? 'hidden' : ''}`}>Total Messages : {messageCount - 2}</p>
             </div>
             <div className='p-4 border-t border-gray-700'>
-                <div className='flex gap-2'>
+                <div className='flex items-center gap-2'>
                     <input
                         className='bg-gray-700 text-white px-4 py-2 rounded-lg shadow-inner flex-1'
                         type='text'
@@ -103,23 +108,16 @@ export const Messenger = () => {
                         onChange={(e) => setMessageValue(e.target.value)}
                         placeholder='Type a message...'
                     />
-                    <button
-                        className='bg-blue-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-blue-500 transition'
+                    <GrSend
+                        className='text-blue-600 text-2xl hover:text-blue-500 transition duration-300 hover:cursor-pointer'
                         onClick={sendMessage}
                         disabled={loading}
-                    >
-                        {loading ? 'Sending...' : 'Send'}
-                    </button>
-                    <button
-                        className='bg-red-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-red-500 transition'
+                    />
+                    <LiaHistorySolid
+                        className='text-2xl text-gray-400 hover:text-gray-100 transition duration-300 hover:cursor-pointer'
                         onClick={getMessages}
                         disabled={loading}
-                    >
-                        {loading ? 'Loading...' : 'Load'}
-                    </button>
-                </div>
-                <div className='mt-4 text-center'>
-                    <p>Total Messages: {messageCount}</p>
+                    />
                 </div>
             </div>
         </div>

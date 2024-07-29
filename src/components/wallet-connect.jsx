@@ -22,7 +22,7 @@ export const WalletConnect = () => {
                 Connect
             </button>
             {connected && (
-                <div>
+                <div className='flex flex-col gap-2 justify-center items-center'>
                     <>
                         {chainId && `Connected chain: ${chainId}`}
                         <p></p>

@@ -19,13 +19,21 @@ export const Messenger = () => {
             if (window.ethereum) {
                 const web3Instance = new Web3(window.ethereum);
                 setWeb3(web3Instance);
-                const accounts = await web3Instance.eth.requestAccounts();
-                setAccounts(accounts);
-                const contractInstance = new web3Instance.eth.Contract(
-                    Abi,
-                    contractAddress
-                );
-                setContract(contractInstance);
+                try {
+                    const accounts = await web3Instance.eth.requestAccounts();
+                    setAccounts(accounts);
+                    const contractInstance = new web3Instance.eth.Contract(
+                        Abi,
+                        contractAddress
+                    );
+                    setContract(contractInstance);
+
+                    // Fetch initial messages and count
+                    await getMessages();
+                    await getMessagesCount();
+                } catch (error) {
+                    console.error("Error initializing Web3 or contract", error);
+                }
             }
         };
 
@@ -33,15 +41,15 @@ export const Messenger = () => {
     }, []);
 
     const sendMessage = async () => {
+        if (!contract) return;
         setLoading(true);
         try {
             await contract.methods
                 .createMessage(String(messageValue))
                 .send({ from: accounts[0] });
             setMessageValue("");
-            console.log("Message Sent", messageValue);
-            await getMessages(); // Update messages after sending a new message
-            await getMessagesCount(); // Update message count after sending a new message
+            await getMessages(); // Refresh messages
+            await getMessagesCount(); // Refresh message count
         } catch (error) {
             console.error("Error sending message", error);
         } finally {
@@ -50,17 +58,29 @@ export const Messenger = () => {
     };
 
     const getMessages = async () => {
+        if (!contract || !accounts.length) return;
         setLoading(true);
         try {
+            // Fetch messages from the contract
             const messagesArray = await contract.methods.getMessages(accounts[0]).call();
-            console.log("Messages Received", messagesArray);
-            setMessages(messagesArray.map((msg, index) => {
-                // Convert BigInt timestamp to a Number for safe operations
+            console.log("Fetched messages:", messagesArray); // Debug log
+
+            // Filter out messages with invalid timestamps
+            const validMessages = messagesArray.filter(msg => {
+                const timestamp = Number(msg.timestamp);
+                return timestamp > 0; // Ensure the timestamp is valid
+            });
+
+            // Update state with valid messages
+            setMessages(validMessages.map((msg, index) => {
                 const timestamp = Number(msg.timestamp);
                 return (
-                    <div key={index} className="bg-gray-800 p-2 rounded-md shadow-md mb-2">
-                        <p>Message: {msg.message}</p>
-                        <p>Timestamp: {new Date(timestamp * 1000).toLocaleString()}</p>
+                    <div key={index}
+                         className="bg-gray-700 p-3 rounded-lg shadow-md mb-2 w-full flex justify-between items-center">
+                        <div>
+                            <p className="text-lg">{msg.message}</p>
+                            <p className="text-sm text-gray-400">{new Date(timestamp * 1000).toLocaleString()}</p>
+                        </div>
                     </div>
                 );
             }));
@@ -71,27 +91,12 @@ export const Messenger = () => {
         }
     };
 
-    const deleteMessage = async (index) => {
-        setLoading(true);
-        try {
-            await contract.methods.deleteMessage(index).send({ from: accounts[0] });
-            console.log("Message Deleted");
-            await getMessages(); // Update messages after deleting a message
-            await getMessagesCount(); // Update message count after deleting a message
-        } catch (error) {
-            console.error("Error deleting message", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const getMessagesCount = async () => {
+        if (!contract || !accounts.length) return;
         setLoading(true);
         try {
             const count = await contract.methods.getMessagesCount(accounts[0]).call();
-            console.log(`Total messages: ${count}`);
             setMessageCount(Number(count));
-            console.log(messageCount)
         } catch (error) {
             console.error("Error getting message count", error);
         } finally {
@@ -100,52 +105,47 @@ export const Messenger = () => {
     };
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            <div className='p-10'>
-                <WalletConnect />
+        <div className="flex flex-col h-full w-full max-w-2xl bg-gray-800 rounded-lg shadow-lg">
+            <div className='p-5 border-b border-gray-700'>
+                <WalletConnect/>
             </div>
-            <div className='flex gap-2'>
-                <input
-                    className='bg-gray-600 px-2 py-2 rounded-md shadow-md'
-                    type='text'
-                    value={messageValue}
-                    onChange={(e) => setMessageValue(e.target.value)}
-                    placeholder='Send Message Here...'
-                />
-                <button
-                    className='bg-red-500 p-2 rounded-md text-white shadow-md active:scale-90 transition'
-                    onClick={sendMessage}
-                    disabled={loading}
-                >
-                    {loading ? 'Sending...' : 'Create'}
-                </button>
-                <button
-                    className='bg-blue-500 p-2 rounded-md text-white shadow-md active:scale-90 transition'
-                    onClick={getMessages}
-                    disabled={loading}
-                >
-                    {loading ? 'Loading...' : 'Get Messages'}
-                </button>
-                <button
-                    className='bg-yellow-500 p-2 rounded-md text-white shadow-md active:scale-90 transition'
-                    onClick={() => deleteMessage(0)} // Example index, replace with actual index
-                    disabled={loading}
-                >
-                    {loading ? 'Deleting...' : 'Delete Message'}
-                </button>
-                <button
-                    className='bg-green-500 p-2 rounded-md text-white shadow-md active:scale-90 transition'
-                    onClick={getMessagesCount}
-                    disabled={loading}
-                >
-                    {loading ? 'Loading...' : 'Get Message Count'}
-                </button>
+            <div className='flex-1 overflow-auto p-4'>
+                {messages.length > 0 ? messages : <p className="text-center text-gray-500">No messages found.</p>}
             </div>
-            <div className='mt-4'>
-                {messages.length > 0 ? messages : <p>No messages found.</p>}
-            </div>
-            <div className='mt-4'>
-                <p>Total Messages: {messageCount}</p>
+            <div className='p-4 border-t border-gray-700'>
+                <div className='flex gap-2'>
+                    <input
+                        className='bg-gray-700 text-white px-4 py-2 rounded-lg shadow-inner flex-1'
+                        type='text'
+                        value={messageValue}
+                        onChange={(e) => setMessageValue(e.target.value)}
+                        placeholder='Type a message...'
+                    />
+                    <button
+                        className='bg-blue-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-blue-500 transition'
+                        onClick={sendMessage}
+                        disabled={loading}
+                    >
+                        {loading ? 'Sending...' : 'Send'}
+                    </button>
+                    <button
+                        className='bg-red-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-red-500 transition'
+                        onClick={getMessages}
+                        disabled={loading}
+                    >
+                        {loading ? 'Loading...' : 'Load'}
+                    </button>
+                    <button
+                        className='bg-green-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-green-500 transition'
+                        onClick={getMessagesCount}
+                        disabled={loading}
+                    >
+                        {loading ? 'Loading...' : 'Count'}
+                    </button>
+                </div>
+                <div className='mt-4 text-center'>
+                    <p>Total Messages: {messageCount}</p>
+                </div>
             </div>
         </div>
     );

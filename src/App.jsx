@@ -1,4 +1,4 @@
-import { Messenger } from "./feature/messenger.jsx";
+import { Messenger } from "./feature/messenger/messenger.jsx";
 
 function App() {
     return (

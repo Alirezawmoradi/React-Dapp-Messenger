@@ -1,7 +1,7 @@
-import { WalletConnect } from "../components/wallet-connect.jsx";
-import { useEffect, useState } from "react";
+import {WalletConnect} from "../components/wallet-connect.jsx";
+import {useEffect, useState} from "react";
 import Web3 from "web3";
-import { Abi } from "../abi/abi.js";
+import {Abi} from "../abi/abi.js";
 
 export const Messenger = () => {
     const [web3, setWeb3] = useState(null);
@@ -27,10 +27,7 @@ export const Messenger = () => {
                         contractAddress
                     );
                     setContract(contractInstance);
-
-                    // Fetch initial messages and count
                     await getMessages();
-                    await getMessagesCount();
                 } catch (error) {
                     console.error("Error initializing Web3 or contract", error);
                 }
@@ -46,10 +43,9 @@ export const Messenger = () => {
         try {
             await contract.methods
                 .createMessage(String(messageValue))
-                .send({ from: accounts[0] });
+                .send({from: accounts[0]});
             setMessageValue("");
-            await getMessages(); // Refresh messages
-            await getMessagesCount(); // Refresh message count
+            await getMessages();
         } catch (error) {
             console.error("Error sending message", error);
         } finally {
@@ -61,17 +57,14 @@ export const Messenger = () => {
         if (!contract || !accounts.length) return;
         setLoading(true);
         try {
-            // Fetch messages from the contract
             const messagesArray = await contract.methods.getMessages(accounts[0]).call();
             console.log("Fetched messages:", messagesArray); // Debug log
 
-            // Filter out messages with invalid timestamps
             const validMessages = messagesArray.filter(msg => {
                 const timestamp = Number(msg.timestamp);
                 return timestamp > 0; // Ensure the timestamp is valid
             });
 
-            // Update state with valid messages
             setMessages(validMessages.map((msg, index) => {
                 const timestamp = Number(msg.timestamp);
                 return (
@@ -84,21 +77,10 @@ export const Messenger = () => {
                     </div>
                 );
             }));
-        } catch (error) {
-            console.error("Error getting messages", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getMessagesCount = async () => {
-        if (!contract || !accounts.length) return;
-        setLoading(true);
-        try {
             const count = await contract.methods.getMessagesCount(accounts[0]).call();
             setMessageCount(Number(count));
         } catch (error) {
-            console.error("Error getting message count", error);
+            console.error("Error getting messages", error);
         } finally {
             setLoading(false);
         }
@@ -134,13 +116,6 @@ export const Messenger = () => {
                         disabled={loading}
                     >
                         {loading ? 'Loading...' : 'Load'}
-                    </button>
-                    <button
-                        className='bg-green-600 px-4 py-2 rounded-lg text-white shadow-md hover:bg-green-500 transition'
-                        onClick={getMessagesCount}
-                        disabled={loading}
-                    >
-                        {loading ? 'Loading...' : 'Count'}
                     </button>
                 </div>
                 <div className='mt-4 text-center'>

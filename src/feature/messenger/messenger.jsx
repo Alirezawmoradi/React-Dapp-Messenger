@@ -1,7 +1,7 @@
-import {WalletConnect} from "../components/wallet-connect/wallet-connect.jsx";
+import {WalletConnect} from "../../components/wallet-connect/wallet-connect.jsx";
 import {useEffect, useState} from "react";
 import Web3 from "web3";
-import {Abi} from "../abi/abi.js";
+import {Abi} from "../../abi/abi.js";
 import {LiaHistorySolid} from "react-icons/lia";
 import {GrSend} from "react-icons/gr";
 

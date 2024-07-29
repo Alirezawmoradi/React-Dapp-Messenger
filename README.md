@@ -25,17 +25,14 @@ MetaMask Messenger is a decentralized messaging application that leverages the M
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/meta-mask-messenger.git
-2. **Clone the repository:**
+   git clone https://github.com/your-username/React-Dapp-Messenger.git
 
-   ```bash
-   cd meta-mask-messenger
-3. Install dependencies:
+2. Install dependencies:
 
    ```bash
    npm install
 
-4. Start the application:
+3. Start the application:
 
    ```bash
    npm run dev
